@@ -6,22 +6,31 @@ class Crawler:
     CATEGORIES = []
 
     def __init__(self, base_url, data_path='/data'):
-        self.base_url = base_url
-        self.data_path = data_path
+        self._base_url = base_url
+        self._data_path = data_path
 
     def run(self):
-        self.save_cat_urls(self.base_url)
+        """
+        Runs the crawler and stores the extracted data.
 
-    def save_cat_urls(self, base_url):
+        :param: None
+        :return: None
+
+        """
+        self.save_cat_urls()
+
+    def save_cat_urls(self):
         """
         Extracts and returns a list of tuples including the category url and title.
 
         :param :base_url :string
 
         """
-        html = self.get_html(self.base_url)
+        html = self.get_html(self._base_url)
         scraper = Scraper(html)
         Crawler.CATEGORIES = scraper.get_categories()
+        print(f"{len(Crawler.CATEGORIES)} categories extracted:")
+        print(*[category_name for category_url, category_name in Crawler.CATEGORIES], sep="\n")
 
         # TODO crawl each category
         # TODO if publication is in the past 30 days save the current category name, publication title, date and description
@@ -29,6 +38,12 @@ class Crawler:
 
     @staticmethod
     def get_html(url):
+        """
+        Extracts the html of an url.
+        :param url: string
+        :return string
+
+        """
 
         try:
             r = requests.get(url)
