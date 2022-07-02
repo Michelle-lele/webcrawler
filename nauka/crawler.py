@@ -83,10 +83,7 @@ class Crawler:
                 scraper = Scraper(html)
                 all_publications.extend(scraper.get_publications())
             print(f"{len(all_publications)} publications extracted")
-            # # TODO if publication is in the past 30 days save the current category name, publication title, date and description
-            # for publication in all_publications:
-            #     if scraper.is_pub_last_30_days(publication):
-            #         self._publications.append(publication)
+            # TODO save the publications category name, publication title, date and description
             print(self._publications)
             return self._publications
 

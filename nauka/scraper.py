@@ -36,29 +36,29 @@ class Scraper:
         all_pubs = self._soup.find(class_="cat_list_s").findAll(class_=['cat_list_s_int', 'cat_list_box'])
         print(f"{len(all_pubs)} publications found on page")
         ''' TODO think how to optimize check for older publications, 
-        can we consider if we find a pub on the page that is older than 30 days that we do not need to search more?
+        can we consider if we find a pub on the page that is older than 90 days that we do not need to search more?
         '''
         if all_pubs:
             latest_pubs = []
             for pub in all_pubs:
                 pub_date = self.get_pub_date(pub)
-                if pub_date and self.is_last_30_days(pub_date):
+                if pub_date and self.is_last_90_days(pub_date):
                     latest_pubs.append(pub)
-            print(f"{len(latest_pubs)} pubs from last 30 days found!")
+            print(f"{len(latest_pubs)} pubs from last 90 days found!")
             return latest_pubs
 
     @staticmethod
-    def is_last_30_days(pub_date):
+    def is_last_90_days(pub_date):
         """
-        Checks if a date is in last 30 days
+        Checks if a date is in last 90 days
 
         :param :date
         :return: :bool
         """
 
-        a_month_ago = datetime.date.today() - datetime.timedelta(days=90)
+        a_quarter_ago = datetime.date.today() - datetime.timedelta(days=90)
 
-        if pub_date > a_month_ago:
+        if pub_date > a_quarter_ago:
             return True
         else:
             return False
