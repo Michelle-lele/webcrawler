@@ -27,10 +27,10 @@ class Scraper:
 
     def get_publications(self):
         """
-            Extracts and returns the page publications.
+            Extracts and returns the page publications data - заглавие, дата и текст.
 
             :param :None
-            :return :list :HTML?
+            :return :list of dictionaries?
 
         """
         all_pubs = self._soup.find(class_="cat_list_s").findAll(class_=['cat_list_s_int', 'cat_list_box'])
@@ -43,12 +43,20 @@ class Scraper:
             for pub in all_pubs:
                 pub_date = self.get_pub_date(pub)
                 if pub_date and self.is_last_90_days(pub_date):
-                    latest_pubs.append(pub)
+                    pub_data = {}
+                    pub_data['publication_date'] = pub_date # TODO think about saving the date string too.
+                    pub_data['title'] = self.get_pub_title(pub)
+                    pub_data['content'] = "hardcoded for now"
+                    latest_pubs.append(pub_data)
             print(f"{len(latest_pubs)} pubs from last 90 days found!")
+            for pub in latest_pubs:
+                print(f"{pub['title']}\n"
+                      f"{pub['publication_date']}\n"
+                      f"{pub['content']}\n")
             return latest_pubs
 
     @staticmethod
-    def is_last_90_days(pub_date):
+    def is_last_90_days(date):
         """
         Checks if a date is in last 90 days
 
@@ -58,7 +66,7 @@ class Scraper:
 
         a_quarter_ago = datetime.date.today() - datetime.timedelta(days=90)
 
-        if pub_date > a_quarter_ago:
+        if date > a_quarter_ago:
             return True
         else:
             return False
@@ -77,8 +85,10 @@ class Scraper:
             # TODO think how to handle better - publication date not found in soup.
             return None
 
-    def get_pub_title(self):
-        pass
+    @staticmethod
+    def get_pub_title(publication):
+        pub_title = publication.find(class_ = ["cat_list_title", "cat_list_s_title"]).findChild("a")['title']
+        return pub_title
 
     def get_pub_description(self):
         pass
