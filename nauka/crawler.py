@@ -1,15 +1,16 @@
+import sys
+
 import requests
 from nauka.scraper import Scraper
 
 
 class Crawler:
 
-    def __init__(self, base_url, data_path='/data'):
+    def __init__(self, base_url):
         self._base_url = base_url
-        self._data_path = data_path
         self._categories = []
         self._seed = []
-        self.publications = []
+        self._publications = []
 
     def run(self):
         """
@@ -21,6 +22,7 @@ class Crawler:
         """
         self.save_categories()
         self.get_seed()
+        self.save_publications()
 
     def save_categories(self):
         """
@@ -30,41 +32,55 @@ class Crawler:
         :return :list of tuples
 
         """
+        print("Crawling categories...")
         html = self.get_html(self._base_url)
         scraper = Scraper(html)
         self._categories = scraper.get_categories()
-        print(f"{len(self._categories)} categories extracted:")
-        print(*[category_name for category_url, category_name in self._categories], sep="\n")
+        print(f"{len(self._categories)} categories extracted!")
+        # print(*[category_name for category_url, category_name in self._categories], sep="\n")
         return self._categories
 
     def get_seed(self):
-        '''
+        """
         Finds all pages in the site categories and extracts the urls in a list.
 
         :param :None
-        :return :URLs :list
+        :return :string :list
 
-        '''
-        for path, category_name in self._categories:
-            current_page = 0
-            url = self._base_url + path + "?page_which=" + str(current_page)
-            html = self.get_html(url)
-            scraper = Scraper(html)
-            max_page = scraper.get_max_page()
-            while current_page < max_page:
+        """
+        if self._categories:
+            print("Crawling categories to get seed URLs...")
+            for path, category_name in self._categories:
+                current_page = 0
+                # TODO consider joining path under different OS
                 url = self._base_url + path + "?page_which=" + str(current_page)
-                self._seed.append(url)
-                current_page += 20
-            self._seed.append(self._base_url + path + "?page_which=" + str(max_page))
-            print(* self._seed, sep='\n')
+                html = self.get_html(url)
+                scraper = Scraper(html)
+                max_page = scraper.get_max_page()
+                while current_page < max_page:
+                    # TODO consider joining path under different OS
+                    url = self._base_url + path + "?page_which=" + str(current_page)
+                    self._seed.append(url)
+                    current_page += 20
+                # TODO consider joining path under different OS
+                self._seed.append(self._base_url + path + "?page_which=" + str(max_page))
+                # print(* self._seed, sep='\n')
+            print(f"{len(self._seed)} URLs extracted!")
+            return self._seed
+        else:
+            return sys.exit("No categories to crawl!")
 
     def save_publications(self):
         if self._seed:
             for url in self._seed:
                 html = self.get_html(url)
                 scraper = Scraper(html)
-                self.publications = scraper.get_publications(html)
-            # for publication in publications:
+                #to move it into the scraper?
+                all_publications = scraper.get_publications()
+            for publication in all_publications:
+                if scraper.is_pub_last_30_days(publication):
+                    self._publications.append(publication)
+            print(self._publications)
             #     # TODO if publication is in the past 30 days save the current category name, publication title, date and description
             #     pass
 
@@ -80,11 +96,11 @@ class Crawler:
         try:
             r = requests.get(url)
         except requests.RequestException:
-            # TODO handle
-            r = requests.get(url, verify=False)
-        except Exception as e:
-            print(f'Cannot get url: {url}: {str(e)}!')
-            exit(-1)
+            try:
+                r = requests.get(url, verify=False)
+            except Exception as e:
+                print(f'Cannot get url: {url}: {str(e)}!')
+                exit(-1)
 
         r.encoding = "utf-8"
 
