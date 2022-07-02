@@ -1,5 +1,7 @@
+import datetime
 import sys
 
+import dateparser
 from bs4 import BeautifulSoup
 import re
 
@@ -27,46 +29,53 @@ class Scraper:
         """
             Extracts and returns the page publications.
 
-            :param :HTML :string
-            :return :publications :list
+            :param :None
+            :return :list :HTML?
 
         """
-        pubs_list = self._soup.find(class_="cat_list_s").findAll(class_=['cat_list_s_int', 'cat_list_box'])
-        return pubs_list
+        all_pubs = self._soup.find(class_="cat_list_s").findAll(class_=['cat_list_s_int', 'cat_list_box'])
+        print(f"{len(all_pubs)} publications found on page")
+        ''' TODO think how to optimize check for older publications, 
+        can we consider if we find a pub on the page that is older than 30 days that we do not need to search more?
+        '''
+        if all_pubs:
+            latest_pubs = []
+            for pub in all_pubs:
+                pub_date = self.get_pub_date(pub)
+                if pub_date and self.is_last_30_days(pub_date):
+                    latest_pubs.append(pub)
+            print(f"{len(latest_pubs)} pubs from last 30 days found!")
+            return latest_pubs
 
-    def is_pub_last_30_days(self, publication):
+    @staticmethod
+    def is_last_30_days(pub_date):
+        """
+        Checks if a date is in last 30 days
+
+        :param :date
+        :return: :bool
         """
 
-        :param publication:
-        :return:
-        """
+        a_month_ago = datetime.date.today() - datetime.timedelta(days=90)
 
-        """
-            <div class="cat_list_box">
-            <a href="/news/Razni_17/Uchenite-se-sheguvat_7102.html" title="Учените се шегуват">
-            <img src="//i2.offnews.bg/nauka/events/2015/03/28/7102/1427563124_2_152x158.jpg">
-            </img></a>
-            <div class="cat_list">
-            <h1 class="cat_list_title"><a href="/news/Razni_17/Uchenite-se-sheguvat_7102.html" title="Учените се шегуват">Учените се шегуват</a></h1>
-            <div class="news_info">01 април 2015 в 10:45<span class="eye_icon left_10px">17951</span><span class="comment_icon left_10px">2</span></div>
-            <div class="clb"></div><span class="cat_list_text">И учените обичат да се шегуват. Опитахме се да съберем малко доказателства за това твърдение. 
-            Какви са шегите на химици, физици, математици и биолози?
-            Химиците
-            
-            Таблицата на Менделеев отначало се е присънила на Пушкин, само че той нищо не е разбрал.
-            
-            "Пази се! Влажен...</span>
-            </div>
-            </div>
+        if pub_date > a_month_ago:
+            return True
+        else:
+            return False
 
-        """
-        # r"\d\d \w[а-я,a-z]+ \d\d\d\d"gm
-        pub_date_div = self._soup.find(class_="news_info")
-        print(pub_date_div)
-        pass
-
-    def get_pub_date(self):
-        pass
+    @staticmethod
+    def get_pub_date(publication):
+        rx = re.compile(r"\d\d \w[а-я,a-z]+ \d\d\d\d")
+        result = rx.search(publication.text)
+        if result:
+            try:
+                pub_date = dateparser.parse(result.group(0), settings={'TIMEZONE': 'UTC'}).date()
+                return pub_date
+            except AttributeError:
+                sys.exit("Publication date could not be parsed!")
+        else:
+            # TODO think how to handle better - publication date not found in soup.
+            return None
 
     def get_pub_title(self):
         pass

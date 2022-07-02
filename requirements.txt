@@ -10,3 +10,4 @@ setuptools==62.1.0
 soupsieve==2.3.2.post1
 urllib3==1.26.9
 wheel==0.37.1
+dateparser~=1.1.1

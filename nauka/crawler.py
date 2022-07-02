@@ -71,18 +71,24 @@ class Crawler:
             return sys.exit("No categories to crawl!")
 
     def save_publications(self):
+        """
+        :param: None
+        :return:
+        """
         if self._seed:
+            print("Crawling publications seed...")
+            all_publications = []
             for url in self._seed:
                 html = self.get_html(url)
                 scraper = Scraper(html)
-                #to move it into the scraper?
-                all_publications = scraper.get_publications()
-            for publication in all_publications:
-                if scraper.is_pub_last_30_days(publication):
-                    self._publications.append(publication)
+                all_publications.extend(scraper.get_publications())
+            print(f"{len(all_publications)} publications extracted")
+            # # TODO if publication is in the past 30 days save the current category name, publication title, date and description
+            # for publication in all_publications:
+            #     if scraper.is_pub_last_30_days(publication):
+            #         self._publications.append(publication)
             print(self._publications)
-            #     # TODO if publication is in the past 30 days save the current category name, publication title, date and description
-            #     pass
+            return self._publications
 
     @staticmethod
     def get_html(url):
