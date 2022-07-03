@@ -44,19 +44,20 @@ class Scraper:
                 pub_date = self.get_pub_date(pub)
                 if pub_date and self.is_last_90_days(pub_date):
                     pub_data = {}
-                    pub_data['publication_date'] = pub_date # TODO think about saving the date string too.
+                    # TODO think how the save the category, too
+                    pub_data['publication_date'] = pub_date # TODO think about saving the date string, too.
                     pub_data['title'] = self.get_pub_title(pub)
-                    pub_data['content'] = "hardcoded for now"
+                    pub_data['URL'] = self.get_pub_url(pub)
                     latest_pubs.append(pub_data)
-            print(f"{len(latest_pubs)} pubs from last 90 days found!")
+            print(f"{len(latest_pubs)} publications from last 90 days found!")
             for pub in latest_pubs:
                 print(f"{pub['title']}\n"
                       f"{pub['publication_date']}\n"
-                      f"{pub['content']}\n")
+                      f"{pub['URL']}")
             return latest_pubs
 
     @staticmethod
-    def is_last_90_days(date):
+    def is_last_90_days(date): # TODO make this generic method, take days as an argument
         """
         Checks if a date is in last 90 days
 
@@ -83,15 +84,25 @@ class Scraper:
                 sys.exit("Publication date could not be parsed!")
         else:
             # TODO think how to handle better - publication date not found in soup.
+            # raise Warning("Publication date not found in soup")
             return None
 
     @staticmethod
     def get_pub_title(publication):
         pub_title = publication.find(class_ = ["cat_list_title", "cat_list_s_title"]).findChild("a")['title']
+        # TODO handle not found in soup
         return pub_title
 
+    @staticmethod
+    def get_pub_url(publication):
+        pub_url = publication.find(class_=["cat_list_title", "cat_list_s_title"]).findChild("a")['href']
+        # TODO handle not found in soup
+        return pub_url
+
     def get_pub_description(self):
-        pass
+        pub_content = self._soup.find(class_="news_text").get_text()
+        # TODO handle not found in soup
+        return pub_content
 
     def get_max_page(self):
         div = self._soup.find(class_='pageBox')

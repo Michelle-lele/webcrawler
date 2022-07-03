@@ -37,7 +37,6 @@ class Crawler:
         scraper = Scraper(html)
         self._categories = scraper.get_categories()
         print(f"{len(self._categories)} categories extracted!")
-        # print(*[category_name for category_url, category_name in self._categories], sep="\n")
         return self._categories
 
     def get_seed(self):
@@ -64,7 +63,6 @@ class Crawler:
                     current_page += 20
                 # TODO consider joining path under different OS
                 self._seed.append(self._base_url + path + "?page_which=" + str(max_page))
-                # print(* self._seed, sep='\n')
             print(f"{len(self._seed)} URLs extracted!")
             return self._seed
         else:
@@ -77,14 +75,16 @@ class Crawler:
         """
         if self._seed:
             print("Crawling publications seed...")
-            all_publications = []
             for url in self._seed:
                 html = self.get_html(url)
                 scraper = Scraper(html)
-                all_publications.extend(scraper.get_publications())
-            print(f"{len(all_publications)} publications extracted")
+                self._publications.extend(scraper.get_publications())
+            for pub in self._publications:
+                pub_html = self.get_html(self._base_url + pub['URL']) # TODO consider better way to join url
+                scraper = Scraper(pub_html)
+                pub['content'] = scraper.get_pub_description()
+            print(f"{len(self._publications)} publications extracted")
             # TODO save the publications category name, publication title, date and description
-            print(self._publications)
             return self._publications
 
     @staticmethod
