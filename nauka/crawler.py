@@ -80,14 +80,13 @@ class Crawler:
             for url, category_name in self._seed:
                 html = self.get_html(url)
                 scraper = Scraper(html)
-                self._publications.extend(scraper.get_publications())
+                self._publications.extend(scraper.get_publications(category_name))
             for pub in self._publications:
                 pub_html = self.get_html(self._base_url + pub['URL']) # TODO consider better way to join url
                 scraper = Scraper(pub_html)
-                pub['category'] = category_name
                 pub['content'] = scraper.get_pub_content()
             print(f"{len(self._publications)} publications extracted")
-            print(self._publications[0])
+            print(self._publications[12])
             return self._publications
 
     @staticmethod

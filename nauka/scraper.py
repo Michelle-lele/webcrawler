@@ -5,6 +5,7 @@ import dateparser
 from bs4 import BeautifulSoup
 import re
 
+DAYS = 90
 
 class Scraper:
     def __init__(self, html):
@@ -25,7 +26,7 @@ class Scraper:
             categories.append((link['href'], link.text))
         return categories
 
-    def get_publications(self):
+    def get_publications(self, *args):
         """
             Extracts and returns the page publications data - title, date and url.
 
@@ -36,20 +37,20 @@ class Scraper:
         all_pubs = self._soup.find(class_="cat_list_s").findAll(class_=['cat_list_s_int', 'cat_list_box'])
         print(f"{len(all_pubs)} publications found on page")
         ''' TODO think how to optimize check for older publications, 
-        can we consider if we find a pub on the page that is older than 90 days that we do not need to search more?
+        can we consider if we find a pub on the page that is older than defined days that we do not need to search more?
         '''
         if all_pubs:
             latest_pubs = []
             for pub in all_pubs:
                 pub_date = self.get_pub_date(pub)
-                if pub_date and self.is_last_90_days(pub_date):
+                if pub_date and self.no_older_than(pub_date, DAYS):
                     pub_data = {}
-                    # TODO think how the save the category, too
-                    pub_data['publication_date'] = pub_date # TODO think about saving the date string, too.
+                    pub_data['publication_date'] = pub_date
                     pub_data['title'] = self.get_pub_title(pub)
                     pub_data['URL'] = self.get_pub_url(pub)
+                    pub_data['category'] = args[0]
                     latest_pubs.append(pub_data)
-            print(f"{len(latest_pubs)} publications from last 90 days found!")
+            print(f"{len(latest_pubs)} recent publications found!")
             for pub in latest_pubs:
                 print(f"{pub['title']}\n"
                       f"{pub['publication_date']}\n"
@@ -57,15 +58,15 @@ class Scraper:
             return latest_pubs
 
     @staticmethod
-    def is_last_90_days(date): # TODO make this generic method, take days as an argument
+    def no_older_than(date, days):
         """
-        Checks if a date is in last 90 days
+        Checks if a date is no older than the defined days
 
         :param :date
         :return: :bool
         """
 
-        a_quarter_ago = datetime.date.today() - datetime.timedelta(days=90)
+        a_quarter_ago = datetime.date.today() - datetime.timedelta(days=days)
 
         if date > a_quarter_ago:
             return True
