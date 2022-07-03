@@ -27,7 +27,7 @@ class Scraper:
 
     def get_publications(self):
         """
-            Extracts and returns the page publications data - заглавие, дата и текст.
+            Extracts and returns the page publications data - title, date and url.
 
             :param :None
             :return :list of dictionaries?
@@ -74,6 +74,12 @@ class Scraper:
 
     @staticmethod
     def get_pub_date(publication):
+        """
+        Extracts and returns the publication date.
+
+        :param publication: bs4.Element.Tag object
+        :return: publication date: datetime object
+        """
         rx = re.compile(r"\d\d \w[а-я,a-z]+ \d\d\d\d")
         result = rx.search(publication.text)
         if result:
@@ -89,22 +95,46 @@ class Scraper:
 
     @staticmethod
     def get_pub_title(publication):
+        """
+        Extracts and returns the publication title.
+
+        :param publication: bs4.Element.Tag object
+        :return: publication title: string
+        """
         pub_title = publication.find(class_ = ["cat_list_title", "cat_list_s_title"]).findChild("a")['title']
         # TODO handle not found in soup
         return pub_title
 
     @staticmethod
     def get_pub_url(publication):
+        """
+        Extracts and returns the relative URL of a publication.
+
+        :param publication: bs4.Element.Tag object
+        :return: publication URL: string
+        """
         pub_url = publication.find(class_=["cat_list_title", "cat_list_s_title"]).findChild("a")['href']
         # TODO handle not found in soup
         return pub_url
 
-    def get_pub_description(self):
+    def get_pub_content(self):
+        """
+        Extracts and returns the publication content.
+
+        :param None
+        :return: publication content: string
+        """
         pub_content = self._soup.find(class_="news_text").get_text()
         # TODO handle not found in soup
         return pub_content
 
     def get_max_page(self):
+        """
+        Extracts and returns the maximum page for a category.
+
+        :param None
+        :return: maximum page: integer
+        """
         div = self._soup.find(class_='pageBox')
         if div:
             href = div.findAll('a')[-1]['href']

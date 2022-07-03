@@ -70,8 +70,10 @@ class Crawler:
 
     def save_publications(self):
         """
+        Crawls and saves the data for a publication - title, date, content, url & others.
+
         :param: None
-        :return:
+        :return: publications data: list of dictionaries
         """
         if self._seed:
             print("Crawling publications seed...")
@@ -82,9 +84,9 @@ class Crawler:
             for pub in self._publications:
                 pub_html = self.get_html(self._base_url + pub['URL']) # TODO consider better way to join url
                 scraper = Scraper(pub_html)
-                pub['content'] = scraper.get_pub_description()
+                pub['content'] = scraper.get_pub_content()
             print(f"{len(self._publications)} publications extracted")
-            # TODO save the publications category name, publication title, date and description
+            # TODO save the publications category name
             return self._publications
 
     @staticmethod
