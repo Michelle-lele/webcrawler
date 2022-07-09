@@ -33,17 +33,22 @@ class DB:
 
     def add_publication(self, pub_data):
         sql = """
-        INSERT IGNORE INTO publications
-        (date, title, URL, category, content)
-        VALUES ( %s, %s, %s, %s, %s)
-        """
+            INSERT IGNORE INTO publications
+            (date, title, URL, category, content)
+            VALUES ( %s, %s, %s, %s, %s)
+            """
 
         with self.conn.cursor(prepared=True) as cursor:
             cursor.execute(sql, tuple(pub_data.values()))
             self.conn.commit()
 
     def select_all_publications(self):
-        pass
+        sql = "SELECT category, URL, title, date, content FROM publications;"
+
+        with self.conn.cursor() as cursor:
+            cursor.execute(sql)
+            result = cursor.fetchall()
+            return result
 
     def create_crawler_table(self):
         pass
