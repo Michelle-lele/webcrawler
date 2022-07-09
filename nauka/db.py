@@ -29,7 +29,12 @@ class DB:
             print('Table publications created!')
 
     def drop_publications_table(self):
-        pass
+        sql = "DROP TABLE webcrawler.publications;"
+
+        with self.conn.cursor() as cursor:
+            cursor.execute(sql)
+            self.conn.commit()
+            print('Table publications dropped!')
 
     def add_publication(self, pub_data):
         sql = """
