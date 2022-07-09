@@ -1,8 +1,8 @@
 import sys
-
 import requests
-from nauka.scraper import Scraper
 
+from nauka.scraper import Scraper
+from nauka.db import DB
 
 class Crawler:
 
@@ -11,6 +11,7 @@ class Crawler:
         self._categories = []
         self._seed = []
         self._publications = []
+        self.db = DB()
 
     def run(self):
         """
@@ -28,7 +29,7 @@ class Crawler:
         """
         Extracts and returns the site categories - url and title.
 
-        :param :base_url :string
+        :param :None
         :return :list of tuples
 
         """
@@ -82,11 +83,19 @@ class Crawler:
                 scraper = Scraper(html)
                 self._publications.extend(scraper.get_publications(category_name))
             for pub in self._publications:
-                pub_html = self.get_html(self._base_url + pub['URL']) # TODO consider better way to join url
+                pub_html = self.get_html(self._base_url + pub['URL'])  # TODO consider better way to join url
                 scraper = Scraper(pub_html)
                 pub['content'] = scraper.get_pub_content()
             print(f"{len(self._publications)} publications extracted")
-            print(self._publications[12])
+
+            self.db.drop_publications_table()
+            self.db.create_publications_table()
+
+            for publication in self._publications:
+                print(publication)
+                print(type(publication))
+                self.db.add_publication(publication)
+            # print(self._publications[12])
             return self._publications
 
     @staticmethod

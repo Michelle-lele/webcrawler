@@ -1,4 +1,4 @@
-from read_config import read_db_config
+from nauka.read_config import read_db_config
 import mysql.connector
 
 
@@ -29,7 +29,7 @@ class DB:
             print('Table publications created!')
 
     def drop_publications_table(self):
-        sql = "DROP TABLE webcrawler.publications;"
+        sql = "DROP TABLE IF EXISTS publications;"
 
         with self.conn.cursor() as cursor:
             cursor.execute(sql)
