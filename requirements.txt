@@ -12,3 +12,4 @@ urllib3==1.26.9
 wheel==0.37.1
 dateparser~=1.1.1
 mysql-connector-python~=8.0.29
+PyQt5==5.15.4
