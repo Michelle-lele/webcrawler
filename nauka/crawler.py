@@ -92,10 +92,7 @@ class Crawler:
             self.db.create_publications_table()
 
             for publication in self._publications:
-                print(publication)
-                print(type(publication))
                 self.db.add_publication(publication)
-            # print(self._publications[12])
             return self._publications
 
     @staticmethod
