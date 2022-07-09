@@ -1,8 +1,11 @@
+import datetime
 import sys
 
+import dateparser
 from bs4 import BeautifulSoup
 import re
 
+DAYS = 90
 
 class Scraper:
     def __init__(self, html):
@@ -23,58 +26,116 @@ class Scraper:
             categories.append((link['href'], link.text))
         return categories
 
-    def get_publications(self):
+    def get_publications(self, *args):
         """
-            Extracts and returns the page publications.
+            Extracts and returns the page publications data - title, date and url.
 
-            :param :HTML :string
-            :return :publications :list
-
-        """
-        pubs_list = self._soup.find(class_="cat_list_s").findAll(class_=['cat_list_s_int', 'cat_list_box'])
-        return pubs_list
-
-    def is_pub_last_30_days(self, publication):
-        """
-
-        :param publication:
-        :return:
-        """
+            :param :None
+            :return :list of dictionaries?
 
         """
-            <div class="cat_list_box">
-            <a href="/news/Razni_17/Uchenite-se-sheguvat_7102.html" title="Учените се шегуват">
-            <img src="//i2.offnews.bg/nauka/events/2015/03/28/7102/1427563124_2_152x158.jpg">
-            </img></a>
-            <div class="cat_list">
-            <h1 class="cat_list_title"><a href="/news/Razni_17/Uchenite-se-sheguvat_7102.html" title="Учените се шегуват">Учените се шегуват</a></h1>
-            <div class="news_info">01 април 2015 в 10:45<span class="eye_icon left_10px">17951</span><span class="comment_icon left_10px">2</span></div>
-            <div class="clb"></div><span class="cat_list_text">И учените обичат да се шегуват. Опитахме се да съберем малко доказателства за това твърдение. 
-            Какви са шегите на химици, физици, математици и биолози?
-            Химиците
-            
-            Таблицата на Менделеев отначало се е присънила на Пушкин, само че той нищо не е разбрал.
-            
-            "Пази се! Влажен...</span>
-            </div>
-            </div>
+        all_pubs = self._soup.find(class_="cat_list_s").findAll(class_=['cat_list_s_int', 'cat_list_box'])
+        print(f"{len(all_pubs)} publications found on page")
+        ''' TODO think how to optimize check for older publications, 
+        can we consider if we find a pub on the page that is older than defined days that we do not need to search more?
+        '''
+        if all_pubs:
+            latest_pubs = []
+            for pub in all_pubs:
+                pub_date = self.get_pub_date(pub)
+                if pub_date and self.no_older_than(pub_date, DAYS):
+                    pub_data = {}
+                    pub_data['publication_date'] = pub_date
+                    pub_data['title'] = self.get_pub_title(pub)
+                    pub_data['URL'] = self.get_pub_url(pub)
+                    pub_data['category'] = args[0]
+                    latest_pubs.append(pub_data)
+            print(f"{len(latest_pubs)} recent publications found!")
+            for pub in latest_pubs:
+                print(f"{pub['title']}\n"
+                      f"{pub['publication_date']}\n"
+                      f"{pub['URL']}")
+            return latest_pubs
 
+    @staticmethod
+    def no_older_than(date, days):
         """
-        # r"\d\d \w[а-я,a-z]+ \d\d\d\d"gm
-        pub_date_div = self._soup.find(class_="news_info")
-        print(pub_date_div)
-        pass
+        Checks if a date is no older than the defined days
 
-    def get_pub_date(self):
-        pass
+        :param :date
+        :return: :bool
+        """
 
-    def get_pub_title(self):
-        pass
+        a_quarter_ago = datetime.date.today() - datetime.timedelta(days=days)
 
-    def get_pub_description(self):
-        pass
+        if date > a_quarter_ago:
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def get_pub_date(publication):
+        """
+        Extracts and returns the publication date.
+
+        :param publication: bs4.Element.Tag object
+        :return: publication date: datetime object
+        """
+        rx = re.compile(r"\d\d \w[а-я,a-z]+ \d\d\d\d")
+        result = rx.search(publication.text)
+        if result:
+            try:
+                pub_date = dateparser.parse(result.group(0), settings={'TIMEZONE': 'UTC'}).date()
+                return pub_date
+            except AttributeError:
+                sys.exit("Publication date could not be parsed!")
+        else:
+            # TODO think how to handle better - publication date not found in soup.
+            # raise Warning("Publication date not found in soup")
+            return None
+
+    @staticmethod
+    def get_pub_title(publication):
+        """
+        Extracts and returns the publication title.
+
+        :param publication: bs4.Element.Tag object
+        :return: publication title: string
+        """
+        pub_title = publication.find(class_ = ["cat_list_title", "cat_list_s_title"]).findChild("a")['title']
+        # TODO handle not found in soup
+        return pub_title
+
+    @staticmethod
+    def get_pub_url(publication):
+        """
+        Extracts and returns the relative URL of a publication.
+
+        :param publication: bs4.Element.Tag object
+        :return: publication URL: string
+        """
+        pub_url = publication.find(class_=["cat_list_title", "cat_list_s_title"]).findChild("a")['href']
+        # TODO handle not found in soup
+        return pub_url
+
+    def get_pub_content(self):
+        """
+        Extracts and returns the publication content.
+
+        :param None
+        :return: publication content: string
+        """
+        pub_content = self._soup.find(class_="news_text").get_text()
+        # TODO handle not found in soup
+        return pub_content
 
     def get_max_page(self):
+        """
+        Extracts and returns the maximum page for a category.
+
+        :param None
+        :return: maximum page: integer
+        """
         div = self._soup.find(class_='pageBox')
         if div:
             href = div.findAll('a')[-1]['href']

@@ -37,7 +37,6 @@ class Crawler:
         scraper = Scraper(html)
         self._categories = scraper.get_categories()
         print(f"{len(self._categories)} categories extracted!")
-        # print(*[category_name for category_url, category_name in self._categories], sep="\n")
         return self._categories
 
     def get_seed(self):
@@ -45,7 +44,7 @@ class Crawler:
         Finds all pages in the site categories and extracts the urls in a list.
 
         :param :None
-        :return :string :list
+        :return :string :list of tuples
 
         """
         if self._categories:
@@ -60,29 +59,35 @@ class Crawler:
                 while current_page < max_page:
                     # TODO consider joining path under different OS
                     url = self._base_url + path + "?page_which=" + str(current_page)
-                    self._seed.append(url)
+                    self._seed.append((url, category_name))
                     current_page += 20
                 # TODO consider joining path under different OS
-                self._seed.append(self._base_url + path + "?page_which=" + str(max_page))
-                # print(* self._seed, sep='\n')
+                self._seed.append((self._base_url + path + "?page_which=" + str(max_page), category_name))
             print(f"{len(self._seed)} URLs extracted!")
             return self._seed
         else:
             return sys.exit("No categories to crawl!")
 
     def save_publications(self):
+        """
+        Crawls and saves the data for a publication - title, date, content, url & others.
+
+        :param: None
+        :return: publications data: list of dictionaries
+        """
         if self._seed:
-            for url in self._seed:
+            print("Crawling publications seed...")
+            for url, category_name in self._seed:
                 html = self.get_html(url)
                 scraper = Scraper(html)
-                #to move it into the scraper?
-                all_publications = scraper.get_publications()
-            for publication in all_publications:
-                if scraper.is_pub_last_30_days(publication):
-                    self._publications.append(publication)
-            print(self._publications)
-            #     # TODO if publication is in the past 30 days save the current category name, publication title, date and description
-            #     pass
+                self._publications.extend(scraper.get_publications(category_name))
+            for pub in self._publications:
+                pub_html = self.get_html(self._base_url + pub['URL']) # TODO consider better way to join url
+                scraper = Scraper(pub_html)
+                pub['content'] = scraper.get_pub_content()
+            print(f"{len(self._publications)} publications extracted")
+            print(self._publications[12])
+            return self._publications
 
     @staticmethod
     def get_html(url):
