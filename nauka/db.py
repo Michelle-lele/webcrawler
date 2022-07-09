@@ -60,5 +60,9 @@ class DB:
 
     def drop_crawler_table(self):
         pass
+
 if __name__ == '__main__':
     db = DB()
+    db.create_publications_table()
+    data = db.select_all_publications()
+    print(*data, sep="\n")
