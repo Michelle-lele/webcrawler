@@ -2,4 +2,8 @@
 /shelf/
 /workspace.xml
 /venv
+/env
 test.py
+info.txt
+config.ini
+nauka/config.ini
