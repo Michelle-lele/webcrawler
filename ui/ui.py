@@ -19,6 +19,7 @@ class MainWindow(QMainWindow):
 
         self.centralwidget = QWidget(self)
         self.centralwidget.setObjectName(u"centralwidget")
+        self.setCentralWidget(self.centralwidget)
 
         self.verticalLayoutWidget = QWidget(self.centralwidget)
         self.verticalLayoutWidget.setObjectName(u"verticalLayoutWidget")
@@ -29,6 +30,7 @@ class MainWindow(QMainWindow):
         self.RunCrawlerBtn = QPushButton(self.verticalLayoutWidget)
         self.RunCrawlerBtn.setObjectName(u"RunCrawlerBtn")
         self.RunCrawlerBtn.setText("Crawl nauka.offnews.bg")
+        self.RunCrawlerBtn.clicked.connect(self.run_crawler_btn_clicked)
 
         btns_font = QFont()
         btns_font.setFamily(u"Calibri")
@@ -52,23 +54,35 @@ class MainWindow(QMainWindow):
         self.WelcomeLabel.setGeometry(QRect(100, 20, 74, 30))
         self.WelcomeLabel.setText('Welcome!')
 
-        sizePolicy1 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Minimum)
-        sizePolicy1.setHorizontalStretch(0)
-        sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.WelcomeLabel.sizePolicy().hasHeightForWidth())
-
-        self.WelcomeLabel.setSizePolicy(sizePolicy1)
         self.WelcomeLabel.setMaximumSize(QSize(16777215, 30))
         self.WelcomeLabel.setAlignment(Qt.AlignJustify | Qt.AlignVCenter)
 
-        self.setCentralWidget(self.centralwidget)
+        # self.MessagesLabel = QLabel(self.centralwidget)
+        # self.MessagesLabel.setObjectName(u"MessagesLabel")
+        # self.MessagesLabel.setGeometry(QRect(50, 40, 150, 30))
+        #
+        # self.MessagesLabel.setMaximumSize(QSize(16777215, 50))
+        # self.MessagesLabel.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        #
+        # msg_font = QFont()
+        # msg_font.setPointSize(9)
+        #
+        # self.MessagesLabel.setFont(msg_font)
+
         self.statusbar = QStatusBar(self)
         self.statusbar.setObjectName(u"statusbar")
         self.setStatusBar(self.statusbar)
 
-        QMetaObject.connectSlotsByName(self)
+        # QMetaObject.connectSlotsByName(self)
 
         self.show()
+
+    def run_crawler_btn_clicked(self):
+        self.RunCrawlerBtn.setEnabled(False)
+        self.RunCrawlerBtn.setText("Crawler started...")
+
+        # self.close()
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
