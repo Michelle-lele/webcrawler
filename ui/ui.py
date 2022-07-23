@@ -1,6 +1,6 @@
 import sys
 
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtCore import QRect, QSize, Qt
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QMainWindow, QWidget, QPushButton, QVBoxLayout, QLabel, QStatusBar, \
@@ -66,19 +66,20 @@ class MainWindow(QMainWindow):
         self.statusbar.setObjectName(u"statusbar")
         self.setStatusBar(self.statusbar)
 
-        # QMetaObject.connectSlotsByName(self)
-
         self.show()
 
     def run_crawler_btn_clicked(self):
+        self.ShowPubsBtn.setEnabled(False)
         self.RunCrawlerBtn.setEnabled(False)
         self.RunCrawlerBtn.setText("Crawling nauka.offnews.bg...")
-        self.RunCrawlerBtn.adjustSize()
-        self.ShowPubsBtn.setEnabled(False)
 
         BASE_URL = 'https://nauka.offnews.bg'
         crawler = Crawler(BASE_URL)
         crawler.run()
+
+        # self.RunCrawlerBtn.setEnabled(True)
+        # self.ShowPubsBtn.setEnabled(True)
+        # self.RunCrawlerBtn.setText("Crawl nauka.offnews.bg")
 
     def view_pubs(self):
         pubs_table = PubsTable()
@@ -88,6 +89,8 @@ class MainWindow(QMainWindow):
 class PubsTable(QTableWidget):
     def __init__(self):
         super().__init__()
+        super().setWindowTitle('Nauka.offnews.bg publications')
+
         self.db = DB()
         self.publications = self.db.select_all_publications()
         self.rows = len(self.publications)
@@ -99,12 +102,17 @@ class PubsTable(QTableWidget):
         self.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
         self.horizontalHeader().setSectionResizeMode(2,QtWidgets.QHeaderView.ResizeToContents)
         self.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.Stretch)
-        self.setMinimumWidth(500)
-        self.setMinimumHeight(300)
+        self.setMinimumWidth(800)
+        self.setMinimumHeight(500)
 
         for i, row in enumerate(self.publications):
             for j, item in enumerate(row):
                 self.setItem(i, j, QTableWidgetItem(str(item)))
+
+        # self.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
+
+        # self.sortItems(0, Qt.AscendingOrder)
+        self.setSortingEnabled(True)
 
         self.show()
 
