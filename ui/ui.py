@@ -1,5 +1,6 @@
 import sys
 
+from PyQt5 import QtWidgets
 from PyQt5.QtCore import QRect, QSize, Qt
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QMainWindow, QWidget, QPushButton, QVBoxLayout, QLabel, QStatusBar, \
@@ -94,6 +95,10 @@ class PubsTable(QTableWidget):
         self.setRowCount(self.rows)
         self.setColumnCount(4)
         self.setHorizontalHeaderLabels(['Категория', 'Дата', 'Заглавие', 'Текст'])
+        self.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
+        self.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
+        self.horizontalHeader().setSectionResizeMode(2,QtWidgets.QHeaderView.ResizeToContents)
+        self.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.Stretch)
         self.setMinimumWidth(500)
         self.setMinimumHeight(300)
 
