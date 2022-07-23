@@ -48,7 +48,7 @@ class DB:
             self.conn.commit()
 
     def select_all_publications(self):
-        sql = "SELECT category, URL, title, date, content FROM publications;"
+        sql = "SELECT category, date, title, content FROM publications;"
 
         with self.conn.cursor() as cursor:
             cursor.execute(sql)
@@ -64,5 +64,5 @@ class DB:
 if __name__ == '__main__':
     db = DB()
     db.create_publications_table()
-    data = db.select_all_publications()
+    data = db.select_col_headers()
     print(*data, sep="\n")

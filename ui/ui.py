@@ -1,9 +1,12 @@
 import sys
 
-from PyQt5.QtCore import QRect, QSize, Qt, QMetaObject
+from PyQt5.QtCore import QRect, QSize, Qt
 from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QMainWindow, QSizePolicy, QWidget, QPushButton, QVBoxLayout, QLabel, QStatusBar, \
-    QApplication
+from PyQt5.QtWidgets import QMainWindow, QWidget, QPushButton, QVBoxLayout, QLabel, QStatusBar, \
+    QApplication, QTableWidget, QTableWidgetItem
+
+from nauka.crawler import Crawler
+from nauka.db import DB
 
 
 class MainWindow(QMainWindow):
@@ -46,6 +49,7 @@ class MainWindow(QMainWindow):
         self.ShowPubsBtn.setFont(btns_font)
         self.ShowPubsBtn.setToolTipDuration(5)
         self.ShowPubsBtn.setText('Show publications')
+        self.ShowPubsBtn.clicked.connect(self.view_pubs)
 
         self.verticalLayout.addWidget(self.ShowPubsBtn)
 
@@ -57,18 +61,6 @@ class MainWindow(QMainWindow):
         self.WelcomeLabel.setMaximumSize(QSize(16777215, 30))
         self.WelcomeLabel.setAlignment(Qt.AlignJustify | Qt.AlignVCenter)
 
-        # self.MessagesLabel = QLabel(self.centralwidget)
-        # self.MessagesLabel.setObjectName(u"MessagesLabel")
-        # self.MessagesLabel.setGeometry(QRect(50, 40, 150, 30))
-        #
-        # self.MessagesLabel.setMaximumSize(QSize(16777215, 50))
-        # self.MessagesLabel.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-        #
-        # msg_font = QFont()
-        # msg_font.setPointSize(9)
-        #
-        # self.MessagesLabel.setFont(msg_font)
-
         self.statusbar = QStatusBar(self)
         self.statusbar.setObjectName(u"statusbar")
         self.setStatusBar(self.statusbar)
@@ -79,9 +71,37 @@ class MainWindow(QMainWindow):
 
     def run_crawler_btn_clicked(self):
         self.RunCrawlerBtn.setEnabled(False)
-        self.RunCrawlerBtn.setText("Crawler started...")
+        self.RunCrawlerBtn.setText("Crawling nauka.offnews.bg...")
+        self.RunCrawlerBtn.adjustSize()
+        self.ShowPubsBtn.setEnabled(False)
 
-        # self.close()
+        BASE_URL = 'https://nauka.offnews.bg'
+        crawler = Crawler(BASE_URL)
+        crawler.run()
+
+    def view_pubs(self):
+        pubs_table = PubsTable()
+        self.pubs_table = pubs_table
+
+
+class PubsTable(QTableWidget):
+    def __init__(self):
+        super().__init__()
+        self.db = DB()
+        self.publications = self.db.select_all_publications()
+        self.rows = len(self.publications)
+
+        self.setRowCount(self.rows)
+        self.setColumnCount(4)
+        self.setHorizontalHeaderLabels(['Категория', 'Дата', 'Заглавие', 'Текст'])
+        self.setMinimumWidth(500)
+        self.setMinimumHeight(300)
+
+        for i, row in enumerate(self.publications):
+            for j, item in enumerate(row):
+                self.setItem(i, j, QTableWidgetItem(str(item)))
+
+        self.show()
 
 
 if __name__ == '__main__':
