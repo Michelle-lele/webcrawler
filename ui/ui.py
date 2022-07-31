@@ -4,7 +4,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import QRect, QSize, Qt, QSortFilterProxyModel
 from PyQt5.QtGui import QFont, QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import QMainWindow, QWidget, QPushButton, QVBoxLayout, QLabel, QStatusBar, \
-    QApplication, QLineEdit, QTableView
+    QApplication, QLineEdit, QTableView, QAbstractScrollArea
 
 from nauka.crawler import Crawler
 from nauka.db import DB
@@ -79,9 +79,9 @@ class MainWindow(QMainWindow):
         crawler = Crawler(BASE_URL)
         crawler.run()
 
-        # self.RunCrawlerBtn.setEnabled(True)
-        # self.ShowPubsBtn.setEnabled(True)
-        # self.RunCrawlerBtn.setText("Crawl nauka.offnews.bg")
+        self.RunCrawlerBtn.setEnabled(True)
+        self.ShowPubsBtn.setEnabled(True)
+        self.RunCrawlerBtn.setText("Crawl nauka.offnews.bg")
 
     def view_pubs(self):
         self.pubs_table = Table()
@@ -91,20 +91,33 @@ class Table(QWidget):
     def __init__(self):
         super().__init__()
 
+        self.setup_db()
+        self.setup_model()
+        self.setup_view()
+
+    def setup_db(self):
         # Setup db data
         self.db = DB()
         self.publications = self.db.select_all_publications()
         self.rows = len(self.publications)
 
+    def setup_model(self):
         # setup the model
-        self.model = QStandardItemModel(self.rows, 4)
-        self.model.setHorizontalHeaderLabels(['Категория', 'Дата', 'Заглавие', 'Текст'])
+        self.model = QStandardItemModel(0, 3)
+        self.model.setHorizontalHeaderLabels(['Категория', 'Дата', 'Заглавие'])
 
         for i, row in enumerate(self.publications):
-            items = [QStandardItem(str(item)[0:100]) for item in row]
+            # items = [QStandardItem(str(item)[0:100]) for item in row[0:3]]
+            items = []
+            for item in row[0:3]:
+                std_item = QStandardItem(str(item))
+                std_item.setEditable(False)
+                items.append(std_item)
+
             self.model.insertRow(i, items)
             # self.setItem(i, j, QStandardItem(str(item)))
 
+    def setup_view(self):
         # setup layout
         table_layout = QVBoxLayout()
 
@@ -123,7 +136,7 @@ class Table(QWidget):
         # setup the view
         self.table_view = QTableView()
         table_layout.addWidget(self.table_view)
-        # self.table_view.SelectionMode(3)
+        self.table_view.SelectionMode(1)
 
         self.table_view.setWindowTitle('Nauka.offnews.bg publications')
         self.table_view.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
@@ -132,10 +145,15 @@ class Table(QWidget):
         self.table_view.setSortingEnabled(True)
         self.table_view.sortByColumn(1, Qt.DescendingOrder)
         self.table_view.setModel(filter_proxy_model)
-
         self.setLayout(table_layout)
+
+        # self.table_view.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
+        # self.adjustSize()
+
         self.show()
 
+class Publication():
+    pass
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
