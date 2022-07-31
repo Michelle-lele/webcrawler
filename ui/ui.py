@@ -1,10 +1,10 @@
 import sys
 
-from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtCore import QRect, QSize, Qt
-from PyQt5.QtGui import QFont
+from PyQt5 import QtWidgets
+from PyQt5.QtCore import QRect, QSize, Qt, QSortFilterProxyModel
+from PyQt5.QtGui import QFont, QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import QMainWindow, QWidget, QPushButton, QVBoxLayout, QLabel, QStatusBar, \
-    QApplication, QTableWidget, QTableWidgetItem
+    QApplication, QLineEdit, QTableView
 
 from nauka.crawler import Crawler
 from nauka.db import DB
@@ -68,6 +68,8 @@ class MainWindow(QMainWindow):
 
         self.show()
 
+        self.pubs_table = []
+
     def run_crawler_btn_clicked(self):
         self.ShowPubsBtn.setEnabled(False)
         self.RunCrawlerBtn.setEnabled(False)
@@ -82,38 +84,56 @@ class MainWindow(QMainWindow):
         # self.RunCrawlerBtn.setText("Crawl nauka.offnews.bg")
 
     def view_pubs(self):
-        pubs_table = PubsTable()
-        self.pubs_table = pubs_table
+        self.pubs_table = Table()
 
 
-class PubsTable(QTableWidget):
+class Table(QWidget):
     def __init__(self):
         super().__init__()
-        super().setWindowTitle('Nauka.offnews.bg publications')
 
+        # Setup db data
         self.db = DB()
         self.publications = self.db.select_all_publications()
         self.rows = len(self.publications)
 
-        self.setRowCount(self.rows)
-        self.setColumnCount(4)
-        self.setHorizontalHeaderLabels(['Категория', 'Дата', 'Заглавие', 'Текст'])
-        self.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
-        self.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
-        self.horizontalHeader().setSectionResizeMode(2,QtWidgets.QHeaderView.ResizeToContents)
-        self.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.Stretch)
-        self.setMinimumWidth(800)
-        self.setMinimumHeight(500)
+        # setup the model
+        self.model = QStandardItemModel(self.rows, 4)
+        self.model.setHorizontalHeaderLabels(['Категория', 'Дата', 'Заглавие', 'Текст'])
 
         for i, row in enumerate(self.publications):
-            for j, item in enumerate(row):
-                self.setItem(i, j, QTableWidgetItem(str(item)))
+            items = [QStandardItem(str(item)[0:100]) for item in row]
+            self.model.insertRow(i, items)
+            # self.setItem(i, j, QStandardItem(str(item)))
 
-        # self.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
+        # setup layout
+        table_layout = QVBoxLayout()
 
-        # self.sortItems(0, Qt.AscendingOrder)
-        self.setSortingEnabled(True)
+        # setup filter
+        filter_proxy_model = QSortFilterProxyModel()
+        filter_proxy_model.setSourceModel(self.model)
+        filter_proxy_model.setFilterCaseSensitivity(Qt.CaseInsensitive)
+        filter_proxy_model.setFilterKeyColumn(2)
 
+        # setup search field
+        self.search = QLineEdit()
+        self.search.setPlaceholderText('Търси по заглавие')
+        self.search.textChanged.connect(filter_proxy_model.setFilterRegExp)
+        table_layout.addWidget(self.search)
+
+        # setup the view
+        self.table_view = QTableView()
+        table_layout.addWidget(self.table_view)
+        # self.table_view.SelectionMode(3)
+
+        self.table_view.setWindowTitle('Nauka.offnews.bg publications')
+        self.table_view.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
+        self.table_view.setMinimumWidth(800)
+        self.table_view.setMinimumHeight(500)
+        self.table_view.setSortingEnabled(True)
+        self.table_view.sortByColumn(1, Qt.DescendingOrder)
+        self.table_view.setModel(filter_proxy_model)
+
+        self.setLayout(table_layout)
         self.show()
 
 
