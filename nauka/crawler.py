@@ -24,6 +24,7 @@ class Crawler:
         self.save_categories()
         self.get_seed()
         self.save_publications()
+        self.save_crawler_data()
 
     def save_categories(self):
         """
@@ -94,6 +95,13 @@ class Crawler:
             for publication in self._publications:
                 self.db.add_publication(publication)
             return self._publications
+        else:
+            print("No seed urls to be crawled!")
+
+    def save_crawler_data(self):
+        self.db.drop_crawler_table()
+        self.db.create_crawler_table()
+        self.db.add_crawler_data()
 
     @staticmethod
     def get_html(url):

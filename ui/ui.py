@@ -13,6 +13,7 @@ from nauka.db import DB
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.setup_db()
 
         self.setGeometry(200, 100, 294, 203)
         self.setWindowTitle("Nauka.offnews.bg - Web Crawler")
@@ -62,6 +63,20 @@ class MainWindow(QMainWindow):
         self.WelcomeLabel.setMaximumSize(QSize(16777215, 30))
         self.WelcomeLabel.setAlignment(Qt.AlignJustify | Qt.AlignVCenter)
 
+        self.CrawlerLabel = QLabel(self.centralwidget)
+        self.CrawlerLabel.setObjectName(u"CrawlerLabel")
+        self.CrawlerLabel.setGeometry(QRect(50, 40, 200, 30))
+        self.CrawlerLabel.setText(f'Last crawled on {self.last_crawled_date[0].date()}')
+
+        self.CrawlerLabel.setMaximumSize(QSize(16777215, 30))
+        self.CrawlerLabel.setAlignment(Qt.AlignJustify | Qt.AlignVCenter)
+
+        crawler_lbl_font = QFont()
+        crawler_lbl_font.setFamily(u"Calibri")
+        crawler_lbl_font.setPointSize(10)
+
+        self.CrawlerLabel.setFont(crawler_lbl_font)
+
         self.statusbar = QStatusBar(self)
         self.statusbar.setObjectName(u"statusbar")
         self.setStatusBar(self.statusbar)
@@ -86,6 +101,10 @@ class MainWindow(QMainWindow):
     def view_pubs(self):
         self.pubs_table = Table()
 
+    def setup_db(self):
+        # Setup db data
+        self.db = DB()
+        self.last_crawled_date = self.db.select_crawler_data()
 
 class Table(QWidget):
     def __init__(self):

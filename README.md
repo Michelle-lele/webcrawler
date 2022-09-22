@@ -20,8 +20,8 @@ https://nauka.offnews.bg/ е сайт за новини от науката и �
 # Забележка:
 Crawler-а трябва да се съобразява с правилата в https://nauka.offnews.bg/robots.txt
 
-# Config.ini
-Create a configuration file including the following configurations:
+# Configuration
+Create a config.ini file in the root directory including the following configurations:
 
     [mysql]
     HOST = 
@@ -29,3 +29,6 @@ Create a configuration file including the following configurations:
     PASSWORD = 
     DATABASE =
     PORT = 
+
+# Requirements
+    pip install -r requirements.txt
