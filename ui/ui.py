@@ -104,6 +104,10 @@ class MainWindow(QMainWindow):
         self.RunCrawlerBtn.setText("Crawl nauka.offnews.bg")
         print("Buttons enabled")
 
+        self.last_crawled_date = self.db.select_crawler_data()
+        if self.last_crawled_date:
+            self.CrawlerLabel.setText(f'Last crawled on {self.last_crawled_date[0].date()}')
+
     def view_pubs(self):
         self.pubs_table = Table()
 

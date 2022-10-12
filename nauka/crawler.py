@@ -109,7 +109,7 @@ class Crawler:
     def save_crawler_data(self):
         self.db.drop_crawler_table()
         self.db.create_crawler_table()
-        # self.db.add_crawler_data()
+        self.db.add_crawler_data()
 
     @staticmethod
     def get_html(url):

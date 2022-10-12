@@ -92,8 +92,9 @@ class DB:
                 cursor.execute(sql)
                 result = cursor.fetchone()
                 return result
-        except mysql.connector.errors.ProgrammingError:
-            self.create_crawler_table()
+        except mysql.connector.errors.ProgrammingError as e:
+            print(e)
+            return None
 
 
     def drop_crawler_table(self):
