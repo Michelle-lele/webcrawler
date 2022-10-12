@@ -83,10 +83,14 @@ class DB:
         sql = """
             SELECT last_crawled_date FROM crawler LIMIT 1;
             """
-        with self.conn.cursor() as cursor:
-            cursor.execute(sql)
-            result = cursor.fetchone()
-            return result
+        try:
+            with self.conn.cursor() as cursor:
+                cursor.execute(sql)
+                result = cursor.fetchone()
+                return result
+        except mysql.connector.errors.ProgrammingError:
+            self.create_crawler_table()
+
 
     def drop_crawler_table(self):
         sql = "DROP TABLE IF EXISTS crawler;"

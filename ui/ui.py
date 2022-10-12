@@ -6,8 +6,8 @@ from PyQt5.QtGui import QFont, QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import QMainWindow, QWidget, QPushButton, QVBoxLayout, QLabel, QStatusBar, \
     QApplication, QLineEdit, QTableView, QAbstractScrollArea
 
-from nauka.crawler import Crawler
 from nauka.db import DB
+from nauka.crawler import WorkerThread
 
 
 class MainWindow(QMainWindow):
@@ -66,7 +66,8 @@ class MainWindow(QMainWindow):
         self.CrawlerLabel = QLabel(self.centralwidget)
         self.CrawlerLabel.setObjectName(u"CrawlerLabel")
         self.CrawlerLabel.setGeometry(QRect(50, 40, 200, 30))
-        self.CrawlerLabel.setText(f'Last crawled on {self.last_crawled_date[0].date()}')
+        if self.last_crawled_date:
+            self.CrawlerLabel.setText(f'Last crawled on {self.last_crawled_date[0].date()}')
 
         self.CrawlerLabel.setMaximumSize(QSize(16777215, 30))
         self.CrawlerLabel.setAlignment(Qt.AlignJustify | Qt.AlignVCenter)
@@ -90,10 +91,11 @@ class MainWindow(QMainWindow):
         self.RunCrawlerBtn.setEnabled(False)
         self.RunCrawlerBtn.setText("Crawling nauka.offnews.bg...")
 
-        BASE_URL = 'https://nauka.offnews.bg'
-        crawler = Crawler(BASE_URL)
-        crawler.run()
+        self.worker = WorkerThread()
+        self.worker.start()
+        self.worker.finished.connect(self.crawler_run_finished)
 
+    def crawler_run_finished(self):
         self.RunCrawlerBtn.setEnabled(True)
         self.ShowPubsBtn.setEnabled(True)
         self.RunCrawlerBtn.setText("Crawl nauka.offnews.bg")
