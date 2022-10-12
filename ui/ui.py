@@ -90,15 +90,19 @@ class MainWindow(QMainWindow):
         self.ShowPubsBtn.setEnabled(False)
         self.RunCrawlerBtn.setEnabled(False)
         self.RunCrawlerBtn.setText("Crawling nauka.offnews.bg...")
+        print("Buttons disabled")
 
         self.worker = WorkerThread()
         self.worker.start()
+        print("Worker started")
         self.worker.finished.connect(self.crawler_run_finished)
 
     def crawler_run_finished(self):
+        print("Worker finished")
         self.RunCrawlerBtn.setEnabled(True)
         self.ShowPubsBtn.setEnabled(True)
         self.RunCrawlerBtn.setText("Crawl nauka.offnews.bg")
+        print("Buttons enabled")
 
     def view_pubs(self):
         self.pubs_table = Table()

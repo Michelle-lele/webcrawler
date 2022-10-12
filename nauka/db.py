@@ -58,6 +58,7 @@ class DB:
             return result
 
     def create_crawler_table(self):
+        print("Creating crawler table!")
         sql = """
             CREATE TABLE IF NOT EXISTS crawler( 
             last_crawled_date DATETIME
@@ -69,6 +70,7 @@ class DB:
             print('Table crawler created!')
 
     def add_crawler_data(self):
+        print("Adding crawler data!")
         sql = """
                     INSERT IGNORE INTO crawler
                     (last_crawled_date)
@@ -80,6 +82,8 @@ class DB:
             self.conn.commit()
 
     def select_crawler_data(self):
+        print("Selecting crawler data!")
+
         sql = """
             SELECT last_crawled_date FROM crawler LIMIT 1;
             """
@@ -93,6 +97,7 @@ class DB:
 
 
     def drop_crawler_table(self):
+        print("Dropping crawler table!")
         sql = "DROP TABLE IF EXISTS crawler;"
 
         with self.conn.cursor() as cursor:
