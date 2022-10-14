@@ -5,7 +5,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import QRect, QSize, Qt, QSortFilterProxyModel
 from PyQt5.QtGui import QFont, QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import QMainWindow, QWidget, QPushButton, QVBoxLayout, QLabel, QStatusBar, \
-    QApplication, QLineEdit, QTableView, QAbstractScrollArea
+    QApplication, QLineEdit, QTableView, QAbstractScrollArea, QHBoxLayout
 
 from nauka.db import DB
 from nauka.crawler import WorkerThread
@@ -189,25 +189,43 @@ class Table(QWidget):
     def view_pub_details(self):
         for idx in self.table_view.selectionModel().selectedIndexes():
             row_number = idx.row()
-        test_pub = ["Свят", datetime.datetime.now(), "Toва е моето заглавие", "Това е много дълъг текст, който няма да пиша докрай."]
-        pub = Publication(self.publications[row_number])
-        print(pub)
+            pub = Publication(self.publications[row_number])
+            print(pub)
 
 class Publication(QWidget):
     def __init__(self, pub):
         super().__init__()
+
         self.category, self.date, self.title, self.text = pub
 
+        self.setup_model()
+        self.setup_view()
+
     def setup_model(self):
-        pass
+        self.model = QStandardItemModel(3,0)
+        self.model.setVerticalHeaderLabels(['Категория', 'Дата', 'Заглавие', 'Текст'])
+        self.model.insertColumn(0, [QStandardItem(self.category), QStandardItem(str(self.date)), QStandardItem(self.title), QStandardItem(self.text)])
 
     def setup_view(self):
-        pass
+        # setup layout
+        pub_layout = QVBoxLayout()
+
+        # setup the view
+        self.pub_view = QTableView()
+        pub_layout.addWidget(self.pub_view)
+        self.pub_view.SelectionMode(1)
+
+        self.pub_view.setWindowTitle(f'{self.title}')
+        self.pub_view.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
+        self.pub_view.setModel(self.model)
+        self.setLayout(pub_layout)
+
+        self.show()
 
     def __str__(self):
         return f"{self.category}, {self.date}, {self.title}"
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    main_window = MainWindow()
+    publication = Publication(["Category", "12/12/22", "Title", "Text"])
     sys.exit(app.exec_())
