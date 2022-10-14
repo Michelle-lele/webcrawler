@@ -1,3 +1,4 @@
+import datetime
 import sys
 
 from PyQt5 import QtWidgets
@@ -133,7 +134,7 @@ class Table(QWidget):
     def setup_model(self):
         # setup the model
         self.model = QStandardItemModel(0, 3)
-        self.model.setHorizontalHeaderLabels(['Категория', 'Дата', 'Заглавие'])
+        self.model.setHorizontalHeaderLabels(['Категория', 'Дата', 'Заглавие', 'Детайли'])
 
         for i, row in enumerate(self.publications):
             # items = [QStandardItem(str(item)[0:100]) for item in row[0:3]]
@@ -142,6 +143,9 @@ class Table(QWidget):
                 std_item = QStandardItem(str(item))
                 std_item.setEditable(False)
                 items.append(std_item)
+            details_item = QStandardItem("прочети статията")
+            details_item.setEditable(False)
+            items.append(details_item)
 
             self.model.insertRow(i, items)
             # self.setItem(i, j, QStandardItem(str(item)))
@@ -175,14 +179,31 @@ class Table(QWidget):
         self.table_view.sortByColumn(1, Qt.DescendingOrder)
         self.table_view.setModel(filter_proxy_model)
         self.setLayout(table_layout)
+        self.table_view.doubleClicked.connect(self.view_pub_details)
 
         # self.table_view.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
         # self.adjustSize()
 
         self.show()
 
-class Publication():
-    pass
+    def view_pub_details(self):
+        test_pub = ["Свят", datetime.datetime.now(), "Toва е моето заглавие", "Това е много дълъг текст, който няма да пиша докрай."]
+        pub = Publication(test_pub)
+        print(pub)
+
+class Publication(QWidget):
+    def __init__(self, pub):
+        super().__init__()
+        self.category, self.date, self.title, self.text = pub
+
+    def setup_model(self):
+        pass
+
+    def setup_view(self):
+        pass
+
+    def __str__(self):
+        return f"{self.category}, {self.date}, {self.title}, {self.text}"
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
