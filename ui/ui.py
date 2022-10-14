@@ -192,6 +192,7 @@ class Table(QWidget):
             pub = Publication(self.publications[row_number])
             print(pub)
 
+
 class Publication(QWidget):
     def __init__(self, pub):
         super().__init__()
@@ -227,5 +228,5 @@ class Publication(QWidget):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    publication = Publication(["Category", "12/12/22", "Title", "Text"])
+    publication = Publication(["Category", "12/12/22", "This is my title", "Text"])
     sys.exit(app.exec_())
