@@ -143,7 +143,7 @@ class Table(QWidget):
                 std_item = QStandardItem(str(item))
                 std_item.setEditable(False)
                 items.append(std_item)
-            details_item = QStandardItem("прочети статията")
+            details_item = QStandardItem("прочети статията...")
             details_item.setEditable(False)
             items.append(details_item)
 
@@ -187,8 +187,10 @@ class Table(QWidget):
         self.show()
 
     def view_pub_details(self):
+        for idx in self.table_view.selectionModel().selectedIndexes():
+            row_number = idx.row()
         test_pub = ["Свят", datetime.datetime.now(), "Toва е моето заглавие", "Това е много дълъг текст, който няма да пиша докрай."]
-        pub = Publication(test_pub)
+        pub = Publication(self.publications[row_number])
         print(pub)
 
 class Publication(QWidget):
@@ -203,7 +205,7 @@ class Publication(QWidget):
         pass
 
     def __str__(self):
-        return f"{self.category}, {self.date}, {self.title}, {self.text}"
+        return f"{self.category}, {self.date}, {self.title}"
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
