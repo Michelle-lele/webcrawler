@@ -66,9 +66,9 @@ class Scraper:
         :return: :bool
         """
 
-        a_quarter_ago = datetime.date.today() - datetime.timedelta(days=days)
+        n_days_ago = datetime.date.today() - datetime.timedelta(days=days)
 
-        if date > a_quarter_ago:
+        if date > n_days_ago:
             return True
         else:
             return False
