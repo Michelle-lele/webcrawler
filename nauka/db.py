@@ -97,14 +97,14 @@ class DB:
             return None
 
 
-    def drop_crawler_table(self):
-        print("Dropping crawler table!")
-        sql = "DROP TABLE IF EXISTS crawler;"
+    def delete_crawler_data(self):
+        print("Deleting crawler data!")
+        sql = "Delete from crawler;"
 
         with self.conn.cursor() as cursor:
             cursor.execute(sql)
             self.conn.commit()
-            print('Table crawler dropped!')
+            print('Crawler data deleted!')
 
 if __name__ == '__main__':
     db = DB()

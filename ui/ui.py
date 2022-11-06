@@ -1,11 +1,10 @@
-import datetime
 import sys
 
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QRect, QSize, Qt, QSortFilterProxyModel
 from PyQt5.QtGui import QFont, QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import QMainWindow, QWidget, QPushButton, QVBoxLayout, QLabel, QStatusBar, \
-    QApplication, QLineEdit, QTableView, QAbstractScrollArea, QHBoxLayout
+    QApplication, QLineEdit, QTableView
 
 from nauka.db import DB
 from nauka.crawler import WorkerThread
@@ -111,6 +110,7 @@ class MainWindow(QMainWindow):
 
     def view_pubs(self):
         self.pubs_table = Table()
+        print("Publication table created!")
 
     def setup_db(self):
         # Setup db data
@@ -131,6 +131,7 @@ class Table(QWidget):
         self.publications = self.db.select_all_publications()
         self.rows = len(self.publications)
 
+
     def setup_model(self):
         # setup the model
         self.model = QStandardItemModel(0, 3)
@@ -149,6 +150,7 @@ class Table(QWidget):
 
             self.model.insertRow(i, items)
             # self.setItem(i, j, QStandardItem(str(item)))
+
 
     def setup_view(self):
         # setup layout
@@ -185,10 +187,12 @@ class Table(QWidget):
         # self.adjustSize()
 
         self.show()
+        print("Pubs table view setup!")
 
     def view_pub_details(self):
-        for idx in self.table_view.selectionModel().selectedIndexes():
-            row_number = idx.row()
+        for index in self.table_view.selectionModel().selectedIndexes():
+            row_number = index.row()
+            global pub
             pub = Publication(self.publications[row_number])
             print(pub)
 
@@ -196,7 +200,6 @@ class Table(QWidget):
 class Publication(QWidget):
     def __init__(self, pub):
         super().__init__()
-
         self.category, self.date, self.title, self.text = pub
 
         self.setup_model()
@@ -205,7 +208,13 @@ class Publication(QWidget):
     def setup_model(self):
         self.model = QStandardItemModel(3,0)
         self.model.setVerticalHeaderLabels(['Категория', 'Дата', 'Заглавие', 'Текст'])
-        self.model.insertColumn(0, [QStandardItem(self.category), QStandardItem(str(self.date)), QStandardItem(self.title), QStandardItem(self.text)])
+        items = []
+        for item in [self.category, self.date, self.title, self.text]:
+            std_item = QStandardItem(str(item))
+            std_item.setEditable(False)
+            items.append(std_item)
+
+        self.model.insertColumn(0, items)
 
     def setup_view(self):
         # setup layout
@@ -217,9 +226,16 @@ class Publication(QWidget):
         self.pub_view.SelectionMode(1)
 
         self.pub_view.setWindowTitle(f'{self.title}')
-        self.pub_view.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
+        self.pub_view.setMinimumWidth(900)
+        self.pub_view.setMaximumWidth(1200)
+        self.pub_view.setMinimumHeight(600)
+        self.pub_view.horizontalScrollBar()
+        # self.pub_view.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
         self.pub_view.setModel(self.model)
         self.setLayout(pub_layout)
+        self.pub_view.setColumnWidth(0, 800)
+        self.pub_view.resizeRowsToContents()
+
 
         self.show()
 
