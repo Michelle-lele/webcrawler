@@ -1,8 +1,16 @@
 import sys
 import requests
+from PyQt5.QtCore import QThread
 
 from nauka.scraper import Scraper
 from nauka.db import DB
+
+class WorkerThread(QThread):
+
+    def run(self):
+        BASE_URL = 'https://nauka.offnews.bg'
+        crawler = Crawler(BASE_URL)
+        crawler.run()
 
 class Crawler:
 
@@ -24,6 +32,7 @@ class Crawler:
         self.save_categories()
         self.get_seed()
         self.save_publications()
+        self.save_crawler_data()
 
     def save_categories(self):
         """
@@ -94,6 +103,12 @@ class Crawler:
             for publication in self._publications:
                 self.db.add_publication(publication)
             return self._publications
+        else:
+            print("No seed urls to be crawled!")
+
+    def save_crawler_data(self):
+        self.db.delete_crawler_data()
+        self.db.add_crawler_data()
 
     @staticmethod
     def get_html(url):
