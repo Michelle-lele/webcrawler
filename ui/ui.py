@@ -187,21 +187,18 @@ class Table(QWidget):
         # self.adjustSize()
 
         self.show()
-        print("Pubs table view setup!")
 
     def view_pub_details(self):
         for index in self.table_view.selectionModel().selectedIndexes():
             row_number = index.row()
             global pub
             pub = Publication(self.publications[row_number])
-            print(pub)
 
 
 class Publication(QWidget):
     def __init__(self, pub):
         super().__init__()
         self.category, self.date, self.title, self.text = pub
-
         self.setup_model()
         self.setup_view()
 

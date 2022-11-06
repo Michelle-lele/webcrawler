@@ -125,9 +125,10 @@ class Scraper:
         :param None
         :return: publication content: string
         """
-        pub_content = self._soup.find(class_="news_text").get_text()
+        pub_content = self._soup.find(class_="news_text")
+        pub_content.find("div", {'class': 'similar_news_box'}).decompose()
         # TODO handle not found in soup
-        return pub_content
+        return pub_content.get_text()
 
     def get_max_page(self):
         """

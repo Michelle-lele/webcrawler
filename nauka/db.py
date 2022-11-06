@@ -21,7 +21,7 @@ class DB:
             URL VARCHAR(400),
             title VARCHAR(120), 
             date DATETIME,
-            content VARCHAR(5000)
+            content TEXT(30000)
         );
         """
 
