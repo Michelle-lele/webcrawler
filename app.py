@@ -11,9 +11,10 @@ if __name__ == '__main__':
 
     app = QApplication(sys.argv)
 
-    main_window = MainWindow()
-    # main_window.RunCrawlerBtn.clicked.connect(main_window.run_crawler_btn_clicked)
-    # main_window.RunCrawlerBtn.clicked.connect(crawler.run)
+    with open('ui/styles.qss', 'r') as f:
+        style = f.read()
+    app.setStyleSheet(style)
 
+    main_window = MainWindow()
     sys.exit(app.exec_())
 

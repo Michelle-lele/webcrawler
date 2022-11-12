@@ -1,0 +1,21 @@
+QMainWindow {
+    background: white;
+}
+
+QPushButton {
+    background-color : #1a62b9;
+    color: white;
+}
+
+QPushButton:hover {
+    background-color : #1c1e54;
+    }
+
+QPushButton:disabled{
+    background-color : grey;
+    }
+
+QLineEdit {
+    font-size: 14px;
+     border-color : #1a62b9;
+    }
