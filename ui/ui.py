@@ -1,4 +1,5 @@
 import sys
+import time
 
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QRect, QSize, Qt, QSortFilterProxyModel
@@ -101,7 +102,7 @@ class MainWindow(QMainWindow):
         print("Publication table created!")
 
     def set_crawler_tooltip(self):
-        self.last_crawled_date = self.db.select_crawler_data()
+        self.setup_db()
 
         if self.last_crawled_date:
             QToolTip.setFont(QFont('Calibri', 14))
