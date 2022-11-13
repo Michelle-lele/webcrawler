@@ -62,8 +62,6 @@ class MainWindow(QMainWindow):
         self.WelcomeLabel.setGeometry(QRect(80, 0, 210, 80))
         self.WelcomeLabel.setText('Welcome to web crawler for')
         self.WelcomeLabel.setContentsMargins(0,0,0,10)
-
-        # self.WelcomeLabel.setMaximumSize(QSize(16777215, 50))
         self.WelcomeLabel.setAlignment(Qt.AlignJustify | Qt.AlignVCenter)
 
         self.CrawlerLabel = QLabel(self.centralwidget)
@@ -72,19 +70,7 @@ class MainWindow(QMainWindow):
 
         self.Logo = QPixmap("media/Nauka_logo.png")
         self.CrawlerLabel.setPixmap(self.Logo)
-
-        # self.CrawlerLabel.setMaximumSize(QSize(16777215, 30))
         self.CrawlerLabel.setAlignment(Qt.AlignJustify | Qt.AlignVCenter)
-
-        # crawler_lbl_font = QFont()
-        # crawler_lbl_font.setFamily(u"Calibri")
-        # crawler_lbl_font.setPointSize(10)
-        #
-        # self.CrawlerLabel.setFont(crawler_lbl_font)
-
-        # self.statusbar = QStatusBar(self)
-        # self.statusbar.setObjectName(u"statusbar")
-        # self.setStatusBar(self.statusbar)
 
         self.show()
 
@@ -119,7 +105,7 @@ class MainWindow(QMainWindow):
 
         if self.last_crawled_date:
             QToolTip.setFont(QFont('Calibri', 14))
-            self.RunCrawlerBtn.setToolTip(f'Last crawled on {self.last_crawled_date[0].strftime("%w %B %Y at %H:%M")}')
+            self.RunCrawlerBtn.setToolTip(f'Last crawled on {self.last_crawled_date[0].strftime("%d %B %Y at %H:%M")}')
 
     def setup_db(self):
         # Setup db data
@@ -150,17 +136,18 @@ class Table(QWidget):
         table_font.setPointSize(12)
 
         for i, row in enumerate(self.publications):
-            # items = [QStandardItem(str(item)[0:100]) for item in row[0:3]]
-            items = []
-            for item in row[0:3]:
-                std_item = QStandardItem(str(item))
-                std_item.setEditable(False)
-                std_item.setFont(table_font)
-                items.append(std_item)
+            category, date, title, content = row
+
+            cat_item = QStandardItem(category)
+            date_item = QStandardItem(str(date.strftime("%d %b %Y")))
+            title_item = QStandardItem(title)
+            items = [cat_item, date_item, title_item]
+
+            for item in items:
+                item.setEditable(False)
+                item.setFont(table_font)
 
             self.model.insertRow(i, items)
-            # self.setItem(i, j, QStandardItem(str(item)))
-
 
     def setup_view(self):
         # setup layout
@@ -221,7 +208,7 @@ class Publication(QWidget):
         pub_font.setPointSize(12)
 
         items = []
-        for item in [self.category, self.date.strftime("%w %B %Y at %H:%M"), self.title, self.text]:
+        for item in [self.category, self.date.strftime("%d %B %Y"), self.title, self.text]:
             std_item = QStandardItem(str(item))
             std_item.setEditable(False)
             std_item.setFont(pub_font)

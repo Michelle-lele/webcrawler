@@ -20,7 +20,7 @@ class DB:
             category VARCHAR(45),
             URL VARCHAR(400),
             title VARCHAR(120), 
-            date DATETIME,
+            date DATE,
             content TEXT(30000)
         );
         """
