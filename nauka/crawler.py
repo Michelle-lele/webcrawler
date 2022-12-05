@@ -1,3 +1,4 @@
+import os
 import sys
 import requests
 from PyQt5.QtCore import QThread
@@ -44,6 +45,7 @@ class Crawler:
         """
         print("Crawling categories...")
         html = self.get_html(self._base_url)
+        print(html)
         scraper = Scraper(html)
         self._categories = scraper.get_categories()
         print(f"{len(self._categories)} categories extracted!")
@@ -63,12 +65,24 @@ class Crawler:
                 current_page = 0
                 # TODO consider joining path under different OS
                 url = self._base_url + path + "?page_which=" + str(current_page)
+                # url = os.path.join(self._base_url.split("\\")[0],
+                #                    self._base_url.split("\\")[1],
+                #                    path,
+                #                    "?page_which=",
+                #                    str(current_page)
+                #                    )
                 html = self.get_html(url)
                 scraper = Scraper(html)
                 max_page = scraper.get_max_page()
                 while current_page < max_page:
                     # TODO consider joining path under different OS
                     url = self._base_url + path + "?page_which=" + str(current_page)
+                    # url = os.path.join(self._base_url.split("\\")[0],
+                    #                    self._base_url.split("\\")[1],
+                    #                    path,
+                    #                    "?page_which=",
+                    #                    str(current_page)
+                    #                    )
                     self._seed.append((url, category_name))
                     current_page += 20
                 # TODO consider joining path under different OS
