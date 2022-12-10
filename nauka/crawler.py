@@ -4,6 +4,8 @@ from PyQt5.QtCore import QThread
 
 from nauka.scraper import Scraper
 from nauka.db import DB
+from nauka.test import get_html
+
 
 class WorkerThread(QThread):
 
@@ -113,14 +115,18 @@ class Crawler:
     @staticmethod
     def get_html(url):
         """
-        Extracts the html of an url.
-        :param url: string
-        :return string
-
+            Extracts the html of an url.
+            :param url: string
+            :return string
         """
-
         try:
-            r = requests.get(url)
+            r = requests.get(
+                url='https://proxy.scrapeops.io/v1/',
+                params={
+                    'api_key': '1816748c-b48a-4f7a-86cc-be5642f87fe9',
+                    'url': url,
+                },
+            )
         except requests.RequestException:
             try:
                 r = requests.get(url, verify=False)
@@ -130,6 +136,16 @@ class Crawler:
 
         r.encoding = "utf-8"
 
-        if r.ok:
+        if r.status_code == 200:
             html = r.text
+        elif r.status_code == 403:
+            with open('error.html', 'w') as f:
+                f.writelines(r.text)
+                f.close()
+            sys.exit("403 Error. See error.html for more details!")
+
+        if html is not None:
             return html
+        else:
+            print(f"Retrying {url}")
+            get_html(url)
