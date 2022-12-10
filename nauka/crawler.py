@@ -5,7 +5,6 @@ from PyQt5.QtCore import QThread
 
 from nauka.scraper import Scraper
 from nauka.db import DB
-from nauka.test import get_html
 
 
 class WorkerThread(QThread):
@@ -126,8 +125,7 @@ class Crawler:
         self.db.delete_crawler_data()
         self.db.add_crawler_data()
 
-    @staticmethod
-    def get_html(url):
+    def get_html(self, url):
         """
             Extracts the html of an url.
             :param url: string
@@ -162,4 +160,4 @@ class Crawler:
             return html
         else:
             print(f"Retrying {url}")
-            get_html(url)
+            self.get_html(url)
